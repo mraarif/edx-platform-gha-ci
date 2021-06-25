@@ -1,0 +1,15 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: edx-platform-ci-cluster
+  region: us-west-2
+nodeGroups:
+  - name: github-workers
+    instanceType: c5d.large
+    desiredCapacity: 12
+    minSize: 10
+    maxSize: 30
+    ssh:
+      allow: true
+      publicKeyName: aarifs-access-key
