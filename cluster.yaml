@@ -6,9 +6,9 @@ metadata:
   region: us-west-2
 nodeGroups:
   - name: github-workers
-    instanceType: c5d.large
-    desiredCapacity: 12
-    minSize: 10
+    instanceType: c5d.xlarge
+    desiredCapacity: 15
+    minSize: 12
     maxSize: 30
     ssh:
       allow: true

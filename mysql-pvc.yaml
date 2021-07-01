@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-data
+  namespace: actions-runner-system
 spec:
   accessModes:
     - ReadWriteOnce

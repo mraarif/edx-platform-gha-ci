@@ -2,7 +2,7 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
-  name: edx-platform-ci-runnerdeploy
+  name: edx-platform-ci-runner-deployment
   namespace: actions-runner-system
 spec:
   replicas: 12
@@ -10,48 +10,71 @@ spec:
     spec:
       repository: mraarif/edx-platform
       image: mraarif/edx-platform-gha-ci
+      dockerdWithinRunnerContainer: true
       env:
-        - name: GITHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: controller-manager
-              key: github_token
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: controller-manager
+            key: github_token
+      resources:
+        requests:
+          cpu: "2.0"
+          memory: "4Gi"
   
-  sidecarContainers:
-    - mongo:
-      command: mongod --smallfiles --nojournal --storageEngine wiredTiger
-      image: mongo:3.6.17
-      name: edx.devstack.mongo
-      ports:
-        - containerPort: 27017
-      volumeMounts:
-        - mountPath: /data/db
-          name: mongo-data
-      hostname: mongo.devstack.edx
-      restartPolicy: Always
-      volumes:
-        - name: mongo-data
-          persistentVolumeClaim:
-            claimName: mongo-data
-      
-    - mysql:
-      command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
-      container_name: "edx.devstack.mysql"
-      hostname: mysql.devstack.edx
-      env:
-        MYSQL_ROOT_PASSWORD: ""
-        MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      image: mysql:5.7
-      name: edx.devstack.mysql
-      ports:
-        - containerPort: 3306
-      volumeMounts:
-        - mountPath: /var/lib/mysql
-          name: mysql-data
-      hostname: mysql.devstack.edx
-      restartPolicy: Always
+      sidecarContainers:
+        - mongo:
+          image: mongo:3.6.17
+          name: mongo
+          container_name: "mongo"
+          # name: mongo
+          ports:
+            - containerPort: 27017
+          command: [ "mongod" ]
+          args: [ "--nojournal", "--storageEngine", "wiredTiger" ]
+          # volumeMounts:
+          #   - mountPath: /data/db
+          #     name: mongo-data
+          hostname: mongo.devstack.edx
+          restartPolicy: Always
+          # volumes:
+          #   - name: mongo-data
+          #     persistentVolumeClaim:
+          #       claimName: mongo-data
+          
+        - mysql:
+          name: mysql
+          container_name: "mysql"
+          hostname: mysql.devstack.edx
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: ""
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "yes"
+          image: mysql:5.7
+          # name: edx.devstack.mysql
+          ports:
+            - containerPort: 3306
+          command: [ "mysqld" ]
+          args: [ "--user=root","--character-set-server=utf8", "--collation-server=utf8_general_ci" ]
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysql-data
+          hostname: mysql.devstack.edx
+          restartPolicy: Always
       volumes:
         - name: mysql-data
           persistentVolumeClaim:
             claimName: mysql-data
-  
+    
+# ---
+# apiVersion: actions.summerwind.dev/v1alpha1
+# kind: HorizontalRunnerAutoscaler
+# metadata:
+#   name: edx-platform-ci-runner-deployment-autoscaler
+# spec:
+#   scaleTargetRef:
+#     name: edx-platform-ci-runner-deployment
+#   minReplicas: 12
+#   maxReplicas: 60
+
