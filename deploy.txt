@@ -3,7 +3,7 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3
 
 
 # install actions-runner-controller
-kubectl apply -f https://github.com/actions-runner-controller/actions-runner-controller/releases/download/v0.18.2/actions-runner-controller.yaml
+kubectl apply -f https://github.com/actions-runner-controller/actions-runner-controller/releases/download/v0.19.0/actions-runner-controller.yaml
 
 # add secrets
 kubectl apply -f secrets.yaml

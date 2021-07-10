@@ -5,7 +5,7 @@ metadata:
   name: edx-platform-ci-runner-deployment
   namespace: actions-runner-system
 spec:
-  replicas: 12
+  # replicas: 12
   template:
     spec:
       repository: mraarif/edx-platform
@@ -32,9 +32,9 @@ spec:
             - containerPort: 27017
           command: [ "mongod" ]
           args: [ "--nojournal", "--storageEngine", "wiredTiger" ]
-          # volumeMounts:
-          #   - mountPath: /data/db
-          #     name: mongo-data
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-data
           hostname: mongo.devstack.edx
           restartPolicy: Always
           # volumes:
@@ -46,6 +46,8 @@ spec:
           name: mysql
           container_name: "mysql"
           hostname: mysql.devstack.edx
+          securityContext:
+            runAsUser: 0
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: ""
@@ -55,8 +57,8 @@ spec:
           # name: edx.devstack.mysql
           ports:
             - containerPort: 3306
-          command: [ "mysqld" ]
-          args: [ "--user=root","--character-set-server=utf8", "--collation-server=utf8_general_ci" ]
+          # command: ["/bin/sh","-c"]
+          # args: ["mysqld", "--user=root", "--initialize;", "mysqld", "--user=root","--character-set-server=utf8", "--collation-server=utf8_general_ci" ]
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: mysql-data
@@ -64,17 +66,21 @@ spec:
           restartPolicy: Always
       volumes:
         - name: mysql-data
-          persistentVolumeClaim:
-            claimName: mysql-data
+          emptyDir: {}
+        - name: mongo-data
+          emptyDir: {}
     
-# ---
-# apiVersion: actions.summerwind.dev/v1alpha1
-# kind: HorizontalRunnerAutoscaler
-# metadata:
-#   name: edx-platform-ci-runner-deployment-autoscaler
-# spec:
-#   scaleTargetRef:
-#     name: edx-platform-ci-runner-deployment
-#   minReplicas: 12
-#   maxReplicas: 60
-
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: HorizontalRunnerAutoscaler
+metadata:
+  name: edx-platform-ci-runner-deployment-autoscaler
+spec:
+  scaleTargetRef:
+    name: edx-platform-ci-runner-deployment
+  minReplicas: 12
+  maxReplicas: 60
+  metrics:
+  - type: TotalNumberOfQueuedAndInProgressWorkflowRuns
+    repositoryNames:
+    - mraarif/edx-platform

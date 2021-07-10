@@ -6,10 +6,10 @@ metadata:
   region: us-west-2
 nodeGroups:
   - name: github-workers
-    instanceType: c5d.xlarge
-    desiredCapacity: 15
-    minSize: 12
-    maxSize: 30
+    instanceType: c5d.2xlarge
+    desiredCapacity: 5
+    minSize: 4
+    maxSize: 20
     ssh:
       allow: true
       publicKeyName: aarifs-access-key
