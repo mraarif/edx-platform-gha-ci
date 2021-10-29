@@ -2,12 +2,12 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
-  name: edx-platform-ci
+  name: edx-platform-ci-2
   region: us-west-2
 nodeGroups:
   - name: github-workers
     instanceType: c5d.2xlarge
-    desiredCapacity: 6 # desired capicity will come down to 2 once the cluster auto-scaler is in place
+    desiredCapacity: 16 # desired capicity will come down to 2 once the cluster auto-scaler is in place
     minSize: 2
     maxSize: 20
     # ssh:

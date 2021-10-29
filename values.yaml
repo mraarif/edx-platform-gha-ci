@@ -5,8 +5,10 @@
 #   github_app_private_key: |
 #
 
+syncPeriod: 2m
 githubWebhookServer:
   enabled: true
+  syncPeriod: 2m
   service:
     type: NodePort
     ports:

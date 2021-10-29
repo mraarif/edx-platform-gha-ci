@@ -7,38 +7,13 @@ metadata:
 spec:
   template:
     spec:
-      # this should be updated to edx/edx-platform
-      repository: mraarif/edx-platform
+      repository: edx/edx-platform
       # this should also point to runner image hosted under edX's dockerhub
-      image: mraarif/edx-platform-gha-ci:1.0
-      # dockerdWithinRunnerContainer: true
-      # env:
-      #   - name: GITHUB_TOKEN
-      #     valueFrom:
-      #       secretKeyRef:
-      #         name: controller-manager
-      #         key: github_token
+      image: mraarif/edx-platform-gha-ci:1.7
       resources:
         requests:
           cpu: "2.0"
           memory: "4Gi"
-
-      # sidecarContainers:
-      #   - name: mongo
-      #     image: mongo:3.6.17
-      #     container_name: "mongo"
-      #     ports:
-      #       - containerPort: 27017
-      #     command: ["mongod"]
-      #     args: ["--nojournal", "--storageEngine", "wiredTiger"]
-      #     volumeMounts:
-      #       - mountPath: /data/db
-      #         name: mongo-data
-      #     hostname: mongo.devstack.edx
-      #     restartPolicy: Always
-      # volumes:
-      #   - name: mongo-data
-      #     emptyDir: {}
 
 ---
 apiVersion: actions.summerwind.dev/v1alpha1
@@ -49,24 +24,35 @@ metadata:
 spec:
   scaleTargetRef:
     name: edx-platform-ci-runner-deployment
-  minReplicas: 2
-  maxReplicas: 60
+  scaleDownDelaySecondsAfterScaleOut: 60
+  minReplicas: 12
+  maxReplicas: 72
+#  scaleUpTriggers:
+#    - githubEvent: {}
+#      duration: "20m"
   metrics:
-    - type: PercentageRunnersBusy
-      scaleUpThreshold: "0.75"
-      scaleDownThreshold: "0.3"
-      scaleUpAdjustment: 2
-      scaleDownAdjustment: 1
-  scaleUpTriggers:
-    - githubEvent:
-        pullRequest:
-          types: ["synchronize"]
-          branches:
-            - "**"
-      amount: 12
-      duration: "15m"
-    - githubEvent:
-        push:
-          branches: ["master"]
-      amount: 12
-      duration: "15m"
+  - type: TotalNumberOfQueuedAndInProgressWorkflowRuns
+    repositoryNames:
+    - edx/edx-platform
+  - type: PercentageRunnersBusy
+    scaleUpThreshold: "0.75"
+    scaleDownThreshold: "0.3"
+    scaleUpAdjustment: 2
+    scaleDownAdjustment: 1
+#  scaleUpTriggers:
+#  - githubEvent:
+#      checkRun:
+#        types: ["created", "rerequested"]
+#        status: "queued"
+#    amount: 12
+#    duration: "20m"
+#  - githubEvent:
+#      pullRequest:
+#        types: ["opened", "synchronize", "reopened"]
+#    amount: 12
+#    duration: "20m"
+# - githubEvent:
+#     push:
+#       branches: ["master"]
+#   amount: 12
+#   duration: "20m"

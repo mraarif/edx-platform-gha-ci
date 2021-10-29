@@ -18,6 +18,10 @@ kubectl create namespace actions-runner-system
 ```
 kubectl apply -f app-secrets.yaml
 ```
+or
+```
+kubectl create secret generic controller-manager -n actions-runner-system --from-literal=github_app_id=“GITHUB_APP_ID” --from-literal=github_app_installation_id=“GITHUB_APP_INSTALLATION_ID" --from-file=github_app_private_key=“GITHUB_APP_PRIVATE_KEY.private-key.pem”
+```
 
 - we need to install the actions-runner-controller via their helm chart since that has support for github webhook server and pod autoscaling bases on github events we've to make sure controller-manager secret already exists or has been added to values.yaml so that secret gets craeted before installing the actions-controller helm chart
 
