@@ -9,7 +9,7 @@ spec:
     spec:
       repository: edx/edx-platform
       # this should also point to runner image hosted under edX's dockerhub
-      image: mraarif/edx-platform-gha-ci:1.7
+      image: openedx/edx-platform-ci-runner
       resources:
         requests:
           cpu: "2.0"
