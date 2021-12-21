@@ -7,7 +7,7 @@ metadata:
 spec:
   template:
     spec:
-      repository: edx/edx-platform
+      repository: eks-poc/edx-platform
       # this should also point to runner image hosted under edX's dockerhub
       image: openedx/edx-platform-ci-runner
       resources:
@@ -25,34 +25,33 @@ spec:
   scaleTargetRef:
     name: edx-platform-ci-runner-deployment
   scaleDownDelaySecondsAfterScaleOut: 60
-  minReplicas: 12
+  minReplicas: 0
   maxReplicas: 72
 #  scaleUpTriggers:
 #    - githubEvent: {}
 #      duration: "20m"
   metrics:
-  - type: TotalNumberOfQueuedAndInProgressWorkflowRuns
-    repositoryNames:
-    - edx/edx-platform
-  - type: PercentageRunnersBusy
-    scaleUpThreshold: "0.75"
-    scaleDownThreshold: "0.3"
-    scaleUpAdjustment: 2
-    scaleDownAdjustment: 1
-#  scaleUpTriggers:
-#  - githubEvent:
-#      checkRun:
-#        types: ["created", "rerequested"]
-#        status: "queued"
-#    amount: 12
-#    duration: "20m"
+#  - type: TotalNumberOfQueuedAndInProgressWorkflowRuns
+#    repositoryNames:
+#    - eks-poc/edx-platform
+#  - type: PercentageRunnersBusy
+#    scaleUpThreshold: "0.75"
+#    scaleDownThreshold: "0.3"
+#    scaleUpAdjustment: 2
+#    scaleDownAdjustment: 1
+  scaleUpTriggers:
+  - githubEvent:
+      checkRun:
+        types: ["created", "rerequested"]
+        status: "queued"
+    amount: 1
+    duration: "10m"
 #  - githubEvent:
 #      pullRequest:
 #        types: ["opened", "synchronize", "reopened"]
 #    amount: 12
 #    duration: "20m"
-# - githubEvent:
-#     push:
-#       branches: ["master"]
-#   amount: 12
-#   duration: "20m"
+#  - githubEvent:
+#      push:
+#    amount: 12
+#    duration: "20m"
